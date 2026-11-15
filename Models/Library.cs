@@ -1,18 +1,17 @@
 namespace SmartLibrary;
 
-// Holds all items and members in memory and enforces the lending rules.
-// shortcut: data lives in memory and resets on restart; add a JSON file or database if it must persist.
+// Holds all items, members and staff, and enforces the lending rules. LibraryStorage saves it to JSON.
 public class Library
 {
     private const StringComparison IgnoreCase = StringComparison.OrdinalIgnoreCase;
 
     private readonly List<LibraryItem> items = new();
     private readonly List<Member> members = new();
-    private readonly List<Librarian> librarians = new();
+    private readonly List<Staff> staff = new();
 
     public IReadOnlyList<LibraryItem> Items => items;
     public IReadOnlyList<Member> Members => members;
-    public IReadOnlyList<Librarian> Librarians => librarians;
+    public IReadOnlyList<Staff> Staff => staff;
 
     // Dashboard statistics
     public int BorrowedCount => items.Count(i => i.IsCheckedOut);
@@ -21,9 +20,21 @@ public class Library
 
     // Interface polymorphism: items and people are unrelated classes, but all can generate a report.
     public IEnumerable<IReportable> Reportables =>
-        librarians.Cast<IReportable>().Concat(members).Concat(items);
+        staff.Cast<IReportable>().Concat(members).Concat(items);
 
-    public void AddLibrarian(Librarian librarian) => librarians.Add(librarian);
+    public void AddStaff(Staff person)
+    {
+        if (staff.Any(s => s.Id.Equals(person.Id, IgnoreCase)))
+            throw new InvalidOperationException($"A staff account with ID {person.Id} already exists.");
+        staff.Add(person);
+    }
+
+    // Returns the signed-in staff member, or null when the ID or password is wrong.
+    public Staff? Login(string id, string password)
+    {
+        var account = staff.FirstOrDefault(s => s.Id.Equals(id.Trim(), IgnoreCase));
+        return account != null && account.VerifyPassword(password) ? account : null;
+    }
 
     public void PayFine(string memberId, decimal amount) => GetMember(memberId).PayFine(amount);
 
@@ -34,12 +45,13 @@ public class Library
         items.Add(item);
     }
 
-    public void AddMember(string id, string name)
+    public Member AddMember(string id, string name)
     {
         var member = new Member(id, name);
         if (members.Any(m => m.Id.Equals(member.Id, IgnoreCase)))
             throw new InvalidOperationException($"A member with ID {member.Id} already exists.");
         members.Add(member);
+        return member;
     }
 
     public void RemoveMember(string id)
@@ -101,7 +113,17 @@ public class Library
         library.AddItem(new DigitalMedia("D002", "OOP in Practice (E-book)"));
         library.AddMember("S001", "Nguyen Van A");
         library.AddMember("S002", "Tran Thi B");
-        library.AddLibrarian(new Librarian("L001", "Le Van C", "Morning"));
+        // Demo accounts (see README): A001 / admin123, L001 / librarian123
+        library.AddStaff(new Admin("A001", "Pham Thi D", PasswordHasher.Hash("admin123")));
+        library.AddStaff(new Librarian("L001", "Le Van C", "Morning", PasswordHasher.Hash("librarian123")));
+        return library;
+    }
+
+    // Sample data plus one loan made 20 days ago, so the app shows an overdue item right away.
+    public static Library CreateDemo()
+    {
+        var library = CreateSample();
+        library.CheckOut("B002", "S002", DateTime.Today.AddDays(-20));
         return library;
     }
 }

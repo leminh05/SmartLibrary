@@ -2,14 +2,35 @@ namespace SmartLibrary;
 
 public partial class MainForm : Form
 {
-    private readonly Library library = Library.CreateSample();
+    private Library library;
+    private readonly Staff user;
+    private readonly string dataPath;
 
-    public MainForm()
+    public MainForm(Library library, Staff user, string dataPath)
     {
         InitializeComponent();
-        // Demo data: one loan made 20 days ago, so the dashboard and the search grid show an overdue item.
-        library.CheckOut("B002", "S002", DateTime.Today.AddDays(-20));
+        this.library = library;
+        this.user = user;
+        this.dataPath = dataPath;
+
+        // The signed-in object decides what it may do; no role-name checks here.
+        Text += $" - {user.Name} ({user.Role})";
+        txtMemberId.Enabled = txtMemberName.Enabled = user.CanManageMembers;
+        btnAddMember.Enabled = btnRemoveMember.Enabled = user.CanManageMembers;
+        btnResetData.Visible = user.CanResetData;
         RefreshAll();
+    }
+
+    private void Save()
+    {
+        try
+        {
+            LibraryStorage.Save(library, dataPath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            MessageBox.Show($"Could not save data: {ex.Message}", "Smart Library", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void RefreshAll()
@@ -39,6 +60,7 @@ public partial class MainForm : Form
         try
         {
             lblResult.Text = action();
+            Save();
             RefreshAll();
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
@@ -129,6 +151,14 @@ public partial class MainForm : Form
             MessageBox.Show(message, "Payment");
             return message;
         });
+    }
+
+    private void btnResetData_Click(object sender, EventArgs e)
+    {
+        if (MessageBox.Show("Replace all data with the demo data? This cannot be undone.", "Reset Data",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+        library = Library.CreateDemo();
+        Run(() => "Data reset to demo data.");
     }
 
     private void btnMemberReport_Click(object sender, EventArgs e)

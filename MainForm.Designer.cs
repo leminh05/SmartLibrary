@@ -24,6 +24,7 @@ partial class MainForm
         lblOverdue = new Label();
         lblFines = new Label();
         txtReport = new TextBox();
+        btnResetData = new Button();
         tabSearch = new TabPage();
         lblSearch = new Label();
         txtSearch = new TextBox();
@@ -84,6 +85,7 @@ partial class MainForm
         tabDashboard.Controls.Add(lblOverdue);
         tabDashboard.Controls.Add(lblFines);
         tabDashboard.Controls.Add(txtReport);
+        tabDashboard.Controls.Add(btnResetData);
         tabDashboard.Location = new Point(4, 24);
         tabDashboard.Name = "tabDashboard";
         tabDashboard.Padding = new Padding(3);
@@ -136,14 +138,24 @@ partial class MainForm
         //
         txtReport.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         txtReport.Font = new Font("Consolas", 9.75F);
-        txtReport.Location = new Point(12, 50);
+        txtReport.Location = new Point(12, 85);
         txtReport.Multiline = true;
         txtReport.Name = "txtReport";
         txtReport.ReadOnly = true;
         txtReport.ScrollBars = ScrollBars.Both;
-        txtReport.Size = new Size(852, 421);
-        txtReport.TabIndex = 4;
+        txtReport.Size = new Size(852, 386);
+        txtReport.TabIndex = 5;
         txtReport.WordWrap = false;
+        //
+        // btnResetData
+        //
+        btnResetData.Location = new Point(12, 45);
+        btnResetData.Name = "btnResetData";
+        btnResetData.Size = new Size(180, 30);
+        btnResetData.TabIndex = 4;
+        btnResetData.Text = "Reset to Demo Data";
+        btnResetData.UseVisualStyleBackColor = true;
+        btnResetData.Click += btnResetData_Click;
         //
         // tabSearch
         //
@@ -491,6 +503,7 @@ partial class MainForm
     private Label lblOverdue;
     private Label lblFines;
     private TextBox txtReport;
+    private Button btnResetData;
     private TabPage tabSearch;
     private Label lblSearch;
     private TextBox txtSearch;

@@ -7,6 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>SmartLibrary</RootNamespace>
+    <!-- The test project lives in a subfolder; keep its files out of the app build. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);SmartLibrary.Tests/**</DefaultItemExcludes>
   </PropertyGroup>
 
 </Project>
