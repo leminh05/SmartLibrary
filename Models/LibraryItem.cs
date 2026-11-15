@@ -1,7 +1,7 @@
 namespace SmartLibrary;
 
 // Abstract base: every item can be lent, but each subclass decides its own loan length and late fee.
-public abstract class LibraryItem
+public abstract class LibraryItem : IReportable
 {
     public string Id { get; }
     public string Title { get; }
@@ -27,6 +27,14 @@ public abstract class LibraryItem
 
     public int DaysLate(DateTime returnDate) =>
         DueDate is DateTime due && returnDate.Date > due ? (returnDate.Date - due).Days : 0;
+
+    public bool IsOverdue(DateTime today) => DaysLate(today) > 0;
+
+    // Subclasses extend this with their own fee rule.
+    public virtual string GenerateReport() =>
+        $"[{Type}] {Id} - {Title} | {Status}"
+        + (DueDate is DateTime due ? $", due {due:dd/MM/yyyy}" : "")
+        + $" | Loan: {LoanDays} days";
 
     public virtual void CheckOut(string memberId, DateTime today)
     {

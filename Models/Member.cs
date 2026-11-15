@@ -1,18 +1,13 @@
 namespace SmartLibrary;
 
-public class Member
+public class Member : Person
 {
-    public string Id { get; }
-    public string Name { get; }
+    // Encapsulation: fines can only change through AddFine / PayFine, which validate the amount.
     public decimal FinesOwed { get; private set; }
 
-    public Member(string id, string name)
-    {
-        if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Member ID is required.", nameof(id));
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Member name is required.", nameof(name));
-        Id = id.Trim();
-        Name = name.Trim();
-    }
+    public Member(string id, string name) : base(id, name) { }
+
+    public override string Role => "Member";
 
     public void AddFine(decimal amount)
     {
@@ -20,5 +15,12 @@ public class Member
         FinesOwed += amount;
     }
 
-    public override string ToString() => $"{Id} - {Name}";
+    public void PayFine(decimal amount)
+    {
+        if (amount <= 0) throw new ArgumentException("Payment must be greater than 0.");
+        if (amount > FinesOwed) throw new ArgumentException($"{Name} only owes {FinesOwed:N0} VND.");
+        FinesOwed -= amount;
+    }
+
+    public override string GenerateReport() => $"[Member]    {Id} - {Name} | Fines owed: {FinesOwed:N0} VND";
 }

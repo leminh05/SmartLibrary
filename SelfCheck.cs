@@ -30,6 +30,27 @@ internal static class SelfCheck
         Check(Throws(() => lib.CheckIn("B001", day)), "returning an item that is not borrowed is rejected");
 
         Check(lib.Search("clean").Count == 1 && lib.Search("magazine").Count == 2, "search by title and type");
+
+        // Dashboard statistics
+        Check(lib.BorrowedCount == 1 && lib.Overdue(day.AddDays(20)).Count == 1 && lib.Overdue(day).Count == 0, "overdue count");
+
+        // Encapsulation: fines only change through validated methods
+        var a = lib.Members[0];
+        Check(Throws(() => lib.PayFine(a.Id, a.FinesOwed + 1)), "cannot overpay");
+        Check(Throws(() => lib.PayFine(a.Id, 0)), "payment must be positive");
+        lib.PayFine(a.Id, Book.FeePerDay);
+        Check(a.FinesOwed == 2 * Book.FeePerDay + Magazine.ReplacementFee, "payment reduces fines");
+        Check(lib.TotalFinesOwed == a.FinesOwed, "total fines");
+
+        // Factory
+        Check(ItemFactory.Create("Magazine", "M9", "X") is Magazine, "factory builds the right subclass");
+        Check(Throws(() => ItemFactory.Create("Car", "C1", "X")), "factory rejects unknown type");
+        Check(Throws(() => lib.AddItem(new Book("b001", "Duplicate"))), "duplicate item ID rejected");
+
+        // Interface polymorphism: every report is different and mentions its own rule
+        var reports = lib.Reportables.Select(r => r.GenerateReport()).ToList();
+        Check(reports.Count == lib.Librarians.Count + lib.Members.Count + lib.Items.Count, "all reportables listed");
+        Check(reports.Any(r => r.StartsWith("[Librarian]")) && reports.Any(r => r.Contains("REVOKED")), "reports differ by type");
     }
 
     private static void Check(bool ok, string rule)
@@ -40,6 +61,6 @@ internal static class SelfCheck
     private static bool Throws(Action action)
     {
         try { action(); return false; }
-        catch (InvalidOperationException) { return true; }
+        catch (Exception ex) when (ex is InvalidOperationException or ArgumentException) { return true; }
     }
 }

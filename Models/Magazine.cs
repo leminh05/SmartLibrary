@@ -10,4 +10,6 @@ public class Magazine : LibraryItem
 
     // Magazines have a flat replacement fee once late, no matter how many days.
     public override decimal CalculateLateFee(DateTime returnDate) => DaysLate(returnDate) > 0 ? ReplacementFee : 0m;
+
+    public override string GenerateReport() => base.GenerateReport() + $" | Late fee: {ReplacementFee:N0} VND flat";
 }

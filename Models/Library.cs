@@ -8,9 +8,24 @@ public class Library
 
     private readonly List<LibraryItem> items = new();
     private readonly List<Member> members = new();
+    private readonly List<Librarian> librarians = new();
 
     public IReadOnlyList<LibraryItem> Items => items;
     public IReadOnlyList<Member> Members => members;
+    public IReadOnlyList<Librarian> Librarians => librarians;
+
+    // Dashboard statistics
+    public int BorrowedCount => items.Count(i => i.IsCheckedOut);
+    public List<LibraryItem> Overdue(DateTime today) => items.Where(i => i.IsOverdue(today)).ToList();
+    public decimal TotalFinesOwed => members.Sum(m => m.FinesOwed);
+
+    // Interface polymorphism: items and people are unrelated classes, but all can generate a report.
+    public IEnumerable<IReportable> Reportables =>
+        librarians.Cast<IReportable>().Concat(members).Concat(items);
+
+    public void AddLibrarian(Librarian librarian) => librarians.Add(librarian);
+
+    public void PayFine(string memberId, decimal amount) => GetMember(memberId).PayFine(amount);
 
     public void AddItem(LibraryItem item)
     {
@@ -86,6 +101,7 @@ public class Library
         library.AddItem(new DigitalMedia("D002", "OOP in Practice (E-book)"));
         library.AddMember("S001", "Nguyen Van A");
         library.AddMember("S002", "Tran Thi B");
+        library.AddLibrarian(new Librarian("L001", "Le Van C", "Morning"));
         return library;
     }
 }

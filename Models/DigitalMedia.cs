@@ -20,4 +20,7 @@ public class DigitalMedia : LibraryItem
         if (DaysLate(returnDate) > 0) AccessRevoked = true;
         return 0m;
     }
+
+    public override string GenerateReport() =>
+        base.GenerateReport() + " | No fee, access revoked when late" + (AccessRevoked ? " (REVOKED)" : "");
 }

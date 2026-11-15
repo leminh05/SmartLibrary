@@ -10,4 +10,6 @@ public class Book : LibraryItem
 
     // Physical books are charged for every day they are late.
     public override decimal CalculateLateFee(DateTime returnDate) => DaysLate(returnDate) * FeePerDay;
+
+    public override string GenerateReport() => base.GenerateReport() + $" | Late fee: {FeePerDay:N0} VND per day";
 }
