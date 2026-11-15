@@ -53,5 +53,8 @@ classDiagram
 
 ## Demo tips
 
-- B002 is borrowed 20 days ago at startup, so it shows as overdue (red row, Dashboard count).
+- Demo data (`Models/DemoData.cs`): 50 real books, 3 magazines, 3 digital items, 40 fictional members.
+  34 items are on loan, 8 are overdue (red rows: B005, B010, B015, B020, B025, B030, M001, D001),
+  and S033–S036 owe fines (90,000 VND in total). Loan dates are relative to today, so this is the same on any day.
+- If you already ran the app before, sign in as A001 and press **Reset to Demo Data** to load this set.
 - Check Out / In tab: set **Borrow date** in the past or **Return date** in the future to show each late-fee rule.

@@ -18,6 +18,8 @@ public partial class MainForm : Form
         txtMemberId.Enabled = txtMemberName.Enabled = user.CanManageMembers;
         btnAddMember.Enabled = btnRemoveMember.Enabled = user.CanManageMembers;
         btnResetData.Visible = user.CanResetData;
+        // Real book titles are long: give the Title column most of the width.
+        dgvItems.DataBindingComplete += (_, _) => dgvItems.Columns["Title"]!.FillWeight = 400;
         RefreshAll();
     }
 

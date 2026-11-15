@@ -113,17 +113,17 @@ public class Library
         library.AddItem(new DigitalMedia("D002", "OOP in Practice (E-book)"));
         library.AddMember("S001", "Nguyen Van A");
         library.AddMember("S002", "Tran Thi B");
-        // Demo accounts (see README): A001 / admin123, L001 / librarian123
-        library.AddStaff(new Admin("A001", "Pham Thi D", PasswordHasher.Hash("admin123")));
-        library.AddStaff(new Librarian("L001", "Le Van C", "Morning", PasswordHasher.Hash("librarian123")));
+        AddDemoStaff(library);
         return library;
     }
 
-    // Sample data plus one loan made 20 days ago, so the app shows an overdue item right away.
-    public static Library CreateDemo()
+    // Demo accounts (see README): A001 / admin123, L001 / librarian123
+    public static void AddDemoStaff(Library library)
     {
-        var library = CreateSample();
-        library.CheckOut("B002", "S002", DateTime.Today.AddDays(-20));
-        return library;
+        library.AddStaff(new Admin("A001", "Pham Thi D", PasswordHasher.Hash("admin123")));
+        library.AddStaff(new Librarian("L001", "Le Van C", "Morning", PasswordHasher.Hash("librarian123")));
     }
+
+    // Full demo data set used by the app (50 books, 40 members, loans); tests use the small CreateSample.
+    public static Library CreateDemo() => DemoData.Create(DateTime.Today);
 }
